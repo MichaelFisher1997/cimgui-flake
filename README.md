@@ -43,7 +43,11 @@ zig cc $(pkg-config --cflags --libs cimgui) your_app.c -o your_app
 
 If you prefer manual flags:
 - Includes: `-I$CIMGUI/include`
-- Link: `-L$CIMGUI/lib -lcimgui`
+- Link: `-L$CIMGUI/lib -lcimgui -lstdc++` (on macOS use `-lc++`)
+
+Notes:
+- Do NOT also link `imgui` separately. This build already compiles and bundles Dear ImGui into the cimgui shared library; adding `-limgui` can cause duplicate/undefined symbols.
+- The package provides both `cimgui.so` and a symlink `libcimgui.so`, so `-lcimgui` resolves correctly.
 
 ## Use As Overlay
 
@@ -87,6 +91,19 @@ git ls-remote --tags https://github.com/cimgui/cimgui.git
 - Only the core cimgui library is built and installed. Rendering/platform backends are header-only; you link the backend(s) you use in your app.
 - On macOS, the library will be `cimgui.dylib`; on Linux, `cimgui.so`.
 - Dev shell includes: `cmake`, `ninja`, `pkg-config`, `gcc`, `git`.
+
+## Verifying Symbols / Linking
+
+To check that C API symbols are exported (e.g. `igCreateContext`):
+
+```sh
+nm -D $(nix build .#cimgui --no-link --print-out-paths)/lib/libcimgui.so | grep igCreateContext
+```
+
+If symbols are present but your project fails to link, ensure you are:
+- pulling flags from `pkg-config cimgui`,
+- not linking `imgui` separately,
+- adding your platform/backend link flags (e.g. `$(pkg-config --cflags --libs sdl2)` and `-lGL` or `$(pkg-config --cflags --libs glfw3)` and `-lGL`).
 
 ## License
 
