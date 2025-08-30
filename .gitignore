@@ -1,0 +1,24 @@
+# Nix outputs
+result
+result-*
+
+# direnv
+.direnv/
+.envrc
+
+# Editors/IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Build artifacts
+build/
+cmake-build-*/
+compile_commands.json
+
+# Zig
+.zig-cache/
+zig-cache/
+zig-out/
+
